@@ -1,14 +1,9 @@
-// src/app/workflow/[id]/page.tsx
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { WorkflowEditor } from "@/components/canvas/WorkflowEditor";
 
-interface Props {
-  params: { id: string };
-}
-
-export default async function WorkflowPage({ params }: Props) {
+export default async function WorkflowPage({ params }: any) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
