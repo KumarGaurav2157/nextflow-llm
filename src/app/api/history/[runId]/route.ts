@@ -2,17 +2,13 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Context = {
-  params: {
-    runId: string;
-  };
-};
-
-export async function GET(req: NextRequest, context: Context) {
+export async function GET(
+  req: NextRequest,
+  context: any
+) {
   try {
     const { userId } = await auth();
 
-    // 🔐 Unauthorized check
     if (!userId) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -20,9 +16,8 @@ export async function GET(req: NextRequest, context: Context) {
       );
     }
 
-    const { runId } = context.params;
+    const runId = context.params.runId;
 
-    // 🔍 Fetch workflow run
     const run = await prisma.workflowRun.findUnique({
       where: { id: runId },
       include: {
@@ -32,7 +27,6 @@ export async function GET(req: NextRequest, context: Context) {
       },
     });
 
-    // ❌ Not found or not owned by user
     if (!run || run.userId !== userId) {
       return NextResponse.json(
         { error: "Not found" },
@@ -40,7 +34,6 @@ export async function GET(req: NextRequest, context: Context) {
       );
     }
 
-    // ✅ Success
     return NextResponse.json(run);
   } catch (error) {
     console.error("GET /api/history/[runId] error:", error);
